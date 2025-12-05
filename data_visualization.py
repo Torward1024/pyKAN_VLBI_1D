@@ -651,7 +651,7 @@ def plot_whole_predictions(filtered_data, results_amplitude, results_phase=None,
     
     return fig, axs
 
-def plot_residuals_analysis(filtered_data, results_amplitude, results_phase=None,
+def plot_residuals_analysis(filtered_data, results_amplitude, results_phase,
                             baseline_col='Baseline',
                             amplitude_col='Amplitude',
                             phase_col='Phase', alpha_test=None, delta_test=None,
