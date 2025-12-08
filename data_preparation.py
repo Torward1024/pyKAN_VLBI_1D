@@ -66,6 +66,75 @@ def calculate_baseline_amplitude(dataset, u_col='U', v_col='V',
     if not inplace:
         return dataset_v
 
+def calculate_baseline_amplitude_angle(dataset, u_col='U', v_col='V', 
+                                 re_col='Re', im_col='Im',
+                                 baseline_col='Baseline', 
+                                 angle_col='Angle',
+                                 amplitude_col='Amplitude',
+                                 phase_col='Phase',
+                                 inplace=False,
+                                 sort_baselines=True):
+    """
+    Calculate Baseline, Angle, and Amplitude columns and add them to the dataset.
+    
+    Parameters:
+    -----------
+    dataset : pd.DataFrame
+        Input dataset containing UV-coverage and complex visibility data
+    u_col : str, default='U'
+        Column name for U coordinates
+    v_col : str, default='V'
+        Column name for V coordinates
+    re_col : str, default='Re'
+        Column name for real part of visibility
+    im_col : str, default='Im'
+        Column name for imaginary part of visibility
+    baseline_col : str, default='Baseline'
+        Column name for calculated baseline projection
+    amplitude_col : str, default='Amplitude'
+        Column name for calculated amplitude
+    phase_col: str, default='Phase'
+        Column name for calculated phase
+    inplace : bool, default=False
+        If True, modify the original dataset. If False, return a copy.
+    
+    Returns:
+    --------
+    pd.DataFrame
+        Dataset with added Baseline and Amplitude columns (if inplace=False)
+    None
+        If inplace=True, modifies the original dataset and returns None
+    
+    Notes:
+    ------
+    Baseline = sqrt(U^2 + V^2)
+    Amplitude = sqrt(Re^2 + Im^2)
+    Phase = atan(Im/Re)
+    """
+    # work with copy if not inplace
+    if not inplace:
+        dataset_v = dataset.copy()
+    else:
+        dataset_v = dataset
+    
+    # сalculate baseline projection
+    dataset_v[baseline_col] = np.sqrt(dataset_v[u_col]**2 + dataset_v[v_col]**2)
+
+    # сalculate angle
+    dataset_v[angle_col] = np.arctan2(dataset_v[v_col], dataset_v[u_col])
+    
+    # сalculate amplitude
+    dataset_v[amplitude_col] = np.sqrt(dataset_v[re_col]**2 + dataset_v[im_col]**2)
+
+    # сalculate amplitude
+    dataset_v[phase_col] = np.arctan2(dataset_v[im_col], dataset_v[re_col])
+    
+    if sort_baselines:
+        dataset_v.sort_values('Baseline').reset_index(drop=True)
+    
+    if not inplace:
+        return dataset_v
+
 def cross_section(dataset, delta, alpha_deg, length=None):
     """
     Extract a cross-section from the dataset based on distance from a line.
