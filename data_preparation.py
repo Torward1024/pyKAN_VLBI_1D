@@ -121,7 +121,7 @@ def calculate_baseline_amplitude_angle(dataset, u_col='U', v_col='V',
     dataset_v[baseline_col] = np.sqrt(dataset_v[u_col]**2 + dataset_v[v_col]**2)
 
     # сalculate angle
-    dataset_v[angle_col] = np.arctan2(dataset_v[v_col], dataset_v[u_col])
+    dataset_v[angle_col] = (np.arctan2(dataset_v[v_col], dataset_v[u_col]))*180/np.pi
     
     # сalculate amplitude
     dataset_v[amplitude_col] = np.sqrt(dataset_v[re_col]**2 + dataset_v[im_col]**2)
