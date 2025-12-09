@@ -1,13 +1,14 @@
 import numpy as np
 import pandas as pd
 
-def calculate_baseline_amplitude(dataset, u_col='U', v_col='V', 
-                                 re_col='Re', im_col='Im',
-                                 baseline_col='Baseline', 
-                                 amplitude_col='Amplitude',
-                                 phase_col='Phase',
-                                 inplace=False,
-                                 sort_baselines=True):
+def calculate_features(dataset, u_col='U', v_col='V', 
+                       re_col='Re', im_col='Im',
+                       baseline_col='Baseline', 
+                       amplitude_col='Amplitude',
+                       alpha_col='Alpha',
+                       phase_col='Phase',
+                       inplace=False,
+                       sort_baselines=True):
     """
     Calculate Baseline and Amplitude columns and add them to the dataset.
     
@@ -53,13 +54,16 @@ def calculate_baseline_amplitude(dataset, u_col='U', v_col='V',
     
     # сalculate baseline projection
     dataset_v[baseline_col] = np.sqrt(dataset_v[u_col]**2 + dataset_v[v_col]**2)
+
+    # calculate angle
+    dataset_v[alpha_col] = np.arctan2(dataset_v[v_col], dataset_v[u_col])
     
     # сalculate amplitude
     dataset_v[amplitude_col] = np.sqrt(dataset_v[re_col]**2 + dataset_v[im_col]**2)
 
     # сalculate amplitude
     dataset_v[phase_col] = np.arctan2(dataset_v[im_col], dataset_v[re_col])
-    
+
     if sort_baselines:
         dataset_v.sort_values('Baseline').reset_index(drop=True)
     
