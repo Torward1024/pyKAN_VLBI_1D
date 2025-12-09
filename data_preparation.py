@@ -135,6 +135,43 @@ def calculate_baseline_amplitude_angle(dataset, u_col='U', v_col='V',
     if not inplace:
         return dataset_v
 
+def data_smoothing(dataset, smoothed_cols=['Re','Im'], window_size=5, inplace=False):
+    """
+    Apply rolling mean smoothing to specified columns in the dataset.
+    
+    Parameters:
+    -----------
+    dataset : pd.DataFrame
+        Input dataset containing columns to be smoothed
+    smoothed_cols : list of str, default=['Re','Im']
+        List of column names to apply smoothing
+    window_size : int, default=5
+        Size of the rolling window for smoothing
+    inplace : bool, default=False
+        If True, modify the original dataset. If False, return a copy.
+    Returns: 
+    --------
+    pd.DataFrame
+        Smoothed dataset (if inplace=False)
+    None
+        If inplace=True, modifies the original dataset and returns None
+    """
+    # work with copy if not inplace
+    if not inplace:
+        dataset_s = dataset.copy()
+    else:
+        dataset_s = dataset
+    
+    # apply rolling mean smoothing
+    for col in smoothed_cols:
+        if col in dataset_s.columns:
+            dataset_s[col] = dataset_s[col].rolling(window=window_size, center=True, min_periods=1).mean() # use min_periods=1 to avoid NaNs at edges
+        else:
+            raise KeyError(f"Column '{col}' not found in dataset")
+    
+    if not inplace:
+        return dataset_s
+
 def cross_section(dataset, delta, alpha_deg, length=None):
     """
     Extract a cross-section from the dataset based on distance from a line.
