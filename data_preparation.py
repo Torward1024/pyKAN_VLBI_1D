@@ -1,6 +1,70 @@
 import numpy as np
 import pandas as pd
 
+def generate_uniform_uv_grid(dataset, num_u=50, num_v=50, u_col='U', v_col='V',
+                            baseline_col='Baseline', alpha_col='Alpha'):
+    """
+    Generate a uniform grid of u,v points within the bounds of the original dataset,
+    calculate baseline projection and alpha angle for each point.
+
+    Parameters:
+    -----------
+    dataset : pd.DataFrame
+        Original dataset containing U and V columns to determine bounds
+    num_u : int, default=50
+        Number of points along U axis
+    num_v : int, default=50
+        Number of points along V axis
+    u_col : str, default='U'
+        Column name for U coordinates in dataset
+    v_col : str, default='V'
+        Column name for V coordinates in dataset
+    baseline_col : str, default='Baseline'
+        Column name for calculated baseline projection
+    alpha_col : str, default='Alpha'
+        Column name for calculated alpha angle
+
+    Returns:
+    --------
+    grid_df : pd.DataFrame
+        DataFrame with columns 'U', 'V', 'Baseline', 'Alpha' containing the grid points
+
+    Notes:
+    ------
+    - U and V values are uniformly spaced between min and max of original dataset
+    - Baseline = sqrt(U^2 + V^2)
+    - Alpha = atan2(V, U) in radians
+    """
+    # get bounds from original dataset
+    u_min, u_max = dataset[u_col].min(), dataset[u_col].max()
+    v_min, v_max = dataset[v_col].min(), dataset[v_col].max()
+
+    # generate uniform grids
+    u_grid = np.linspace(u_min, u_max, num_u)
+    v_grid = np.linspace(v_min, v_max, num_v)
+
+    # create meshgrid
+    UU, VV = np.meshgrid(u_grid, v_grid)
+
+    # flatten to 1D arrays
+    u_flat = UU.flatten()
+    v_flat = VV.flatten()
+
+    # calculate baseline and alpha
+    baseline = np.sqrt(u_flat**2 + v_flat**2)
+    alpha = np.arctan2(v_flat, u_flat)
+
+    # create DataFrame
+    grid_df = pd.DataFrame({
+        u_col: u_flat,
+        v_col: v_flat,
+        baseline_col: baseline,
+        alpha_col: alpha
+    })
+
+    return grid_df
+
+
 def calculate_features(dataset, u_col='U', v_col='V', 
                        re_col='Re', im_col='Im',
                        baseline_col='Baseline', 
